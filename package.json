@@ -1,0 +1,14 @@
+{
+  "name": "tankon_server",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Icheng Lin",
+  "license": "MIT",
+  "dependencies": {
+    "socket.io": "^4.6.1"
+  }
+}
