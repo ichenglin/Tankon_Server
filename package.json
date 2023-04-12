@@ -9,6 +9,7 @@
   "author": "Icheng Lin",
   "license": "MIT",
   "dependencies": {
+    "dotenv": "^16.0.3",
     "socket.io": "^4.6.1"
   }
 }
