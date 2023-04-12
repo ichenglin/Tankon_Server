@@ -7,7 +7,7 @@ import SocketPlayer from "./objects/socket_player";
 
 dotenv.config();
 
-export const socket_server  = new Server(parseInt(process.env.SERVER_PORT as string), {cors: {origin: process.env.CLIENT_ORIGIN, methods: ["GET", "POST"]}});
+export const socket_server  = new Server(parseInt(process.env.SERVER_PORT as string), {path: process.env.SERVER_PATH, cors: {origin: process.env.CLIENT_ORIGIN, methods: ["GET", "POST"]}});
 export const room_manager   = new RoomManager(10);
 export const player_manager = new PlayerManager();
 
