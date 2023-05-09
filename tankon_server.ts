@@ -34,10 +34,10 @@ socket_server.on("connection", (socket_player) => {
         player_data.room_set(player_room_validated);
         callback_status({success: true, player_room: player_room_validated});
     });
-    socket_player.on("player_move", (player_coordinates: any) => {
+    socket_player.on("player_move", (movement_data: any) => {
         if (player_data === null) return;
         // pass down the coordinates to the rest of the players
-        socket_player.to(player_data.room_get()).emit("player_move", player_coordinates);
+        socket_player.to(player_data.room_get()).emit("player_move", player_data.id_get(), movement_data);
     });
     socket_player.on("player_projectile", (player_projectile: any) => {
         if (player_data === null) return;
