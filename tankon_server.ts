@@ -17,6 +17,7 @@ socket_server.on("connection", (socket_player) => {
     // events
     socket_player.on("disconnect", () => {
         Logger.log_send(`Socket disconnection: ${socket_player.id}`);
+        player_data?.room_remove();
         socket_player.disconnect(true);
     });
     socket_player.on("room_join", (player_username: string, player_room: string | null, callback_status: Function) => {
@@ -37,11 +38,11 @@ socket_server.on("connection", (socket_player) => {
     socket_player.on("player_move", (movement_data: any) => {
         if (player_data === null) return;
         // pass down the coordinates to the rest of the players
-        socket_player.to(player_data.room_get()).emit("player_move", player_data.id_get(), movement_data);
+        socket_player.to(player_data.room_get()?.id_get() as string).emit("player_move", player_data.id_get(), movement_data);
     });
     socket_player.on("player_projectile", (player_projectile: any) => {
         if (player_data === null) return;
         // pass down the coordinates to the rest of the players
-        socket_player.to(player_data.room_get()).emit("player_projectile", player_projectile);
+        socket_player.to(player_data.room_get()?.id_get() as string).emit("player_projectile", player_projectile);
     });
 });

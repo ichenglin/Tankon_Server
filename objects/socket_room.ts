@@ -1,3 +1,4 @@
+import { socket_server } from "../tankon_server";
 import SocketPlayer from "./socket_player";
 
 export default class SocketRoom {
@@ -12,6 +13,18 @@ export default class SocketRoom {
 
     public id_get() {
         return this.room_id;
+    }
+
+    public players_add(player_object: SocketPlayer): void {
+        this.room_players.push(player_object);
+        socket_server.to(this.room_id).emit("player_join", player_object.profile_get());
+        player_object.socket_get().join(this.room_id);
+        this.room_players.filter((room_player) => room_player.id_get() !== player_object?.id_get()).forEach((room_player) => player_object.socket_get().emit("player_join", room_player.profile_get()));
+    }
+
+    public players_remove(player_id: string): void {
+        this.room_players = this.room_players.filter((room_player) => room_player.id_get() !== player_id);
+        socket_server.to(this.room_id).emit("player_quit", player_id);
     }
 
     public players_get(): SocketPlayer[] {
