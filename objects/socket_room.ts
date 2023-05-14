@@ -19,7 +19,10 @@ export default class SocketRoom {
         this.room_players.push(player_object);
         socket_server.to(this.room_id).emit("player_join", player_object.profile_get());
         player_object.socket_get().join(this.room_id);
-        this.room_players.filter((room_player) => room_player.id_get() !== player_object?.id_get()).forEach((room_player) => player_object.socket_get().emit("player_join", room_player.profile_get()));
+        this.room_players.filter((room_player) => room_player.id_get() !== player_object?.id_get()).forEach((room_player) => {
+            player_object.socket_get().emit("player_join", room_player.profile_get());
+            player_object.socket_get().emit("player_move", room_player.id_get(), room_player.movement_get());
+        });
     }
 
     public players_remove(player_id: string): void {

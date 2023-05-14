@@ -3,11 +3,15 @@ import * as dotenv from "dotenv";
 import Logger from "./managers/logger";
 import PlayerManager from "./managers/player_manager";
 import RoomManager from "./managers/room_manager";
-import SocketPlayer from "./objects/socket_player";
+import SocketPlayer, { PlayerMovement } from "./objects/socket_player";
 
 dotenv.config();
 
-export const socket_server  = new Server(parseInt(process.env.SERVER_PORT as string), {path: process.env.SERVER_PATH, cors: {origin: process.env.CLIENT_ORIGIN, methods: ["GET", "POST"]}});
+export const socket_server  = new Server(parseInt(process.env.SERVER_PORT as string), {
+    path: process.env.SERVER_PATH,
+    cors: {origin: process.env.CLIENT_ORIGIN,
+    methods: ["GET", "POST"]}
+});
 export const room_manager   = new RoomManager(10);
 export const player_manager = new PlayerManager();
 
@@ -35,10 +39,13 @@ socket_server.on("connection", (socket_player) => {
         player_data.room_set(player_room_validated);
         callback_status({success: true, player_room: player_room_validated});
     });
-    socket_player.on("player_move", (movement_data: any) => {
+    socket_player.on("player_move", (movement_data: PlayerMovement) => {
         if (player_data === null) return;
+        // record movement
+        const player_id = player_data.id_get();
+        player_manager.player_get(player_id)?.movement_set(movement_data);
         // pass down the coordinates to the rest of the players
-        socket_player.to(player_data.room_get()?.id_get() as string).emit("player_move", player_data.id_get(), movement_data);
+        socket_player.to(player_data.room_get()?.id_get() as string).emit("player_move", player_id, movement_data);
     });
     socket_player.on("player_projectile", (player_projectile: any) => {
         if (player_data === null) return;
