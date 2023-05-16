@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { room_manager, socket_server } from "../tankon_server";
+import { room_manager } from "../tankon_server";
 import SocketRoom from "./socket_room";
 import Vector2D from "./vector_2d";
 
@@ -8,6 +8,7 @@ export default class SocketPlayer {
     private player_id:       string; // socket id
     private player_username: string;
     private player_movement: PlayerMovement;
+    private player_latency:  PlayerLatency;
     private player_room:     SocketRoom | undefined;
     private player_socket:   Socket;
 
@@ -20,6 +21,10 @@ export default class SocketPlayer {
             movement_lifespan:  null,
             movement_timestamp: Date.now()
         };
+        this.player_latency = {
+            client_send:    0,
+            client_receive: 0
+        }
         this.player_room     = undefined;
         this.player_socket   = player_socket;
     }
@@ -32,6 +37,30 @@ export default class SocketPlayer {
             movement_lifespan:  null,
             movement_timestamp: Date.now()
         } as PlayerMovement);
+    }
+
+    public async player_ping(ping_timeout: number): Promise<PlayerLatency> {
+        const timestamp_send    = Date.now();
+        const timestamp_receive = await new Promise<number | null>((resolve) => {
+            this.player_socket.once("client_pong", (pong_timestamp) => resolve(pong_timestamp));
+            this.player_socket.emit("server_ping");
+            // timeout
+            setTimeout(() => {
+                this.player_socket.removeAllListeners("client_pong");
+                resolve(null);
+            }, ping_timeout);
+        });
+        if (timestamp_receive === null) return {
+            client_send:    0,
+            client_receive: 0
+        };
+        const timestamp_return  = Date.now();
+        const player_latency: PlayerLatency = {
+            client_send:    (timestamp_return  - timestamp_receive),
+            client_receive: (timestamp_receive - timestamp_send)
+        };
+        this.player_latency = player_latency;
+        return player_latency;
     }
 
     public id_get(): string {
@@ -48,6 +77,10 @@ export default class SocketPlayer {
 
     public movement_get(): PlayerMovement {
         return this.player_movement;
+    }
+
+    public latency_get(): PlayerLatency {
+        return this.player_latency;
     }
 
     public room_set(room_id: string): void {
@@ -86,4 +119,9 @@ export interface PlayerMovement {
     movement_proceed:   boolean,
     movement_lifespan:  number | null,
     movement_timestamp: number
+}
+
+export interface PlayerLatency {
+    client_send:    number, // client to server
+    client_receive: number  // server to client
 }

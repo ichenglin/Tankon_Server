@@ -1,5 +1,5 @@
 import { socket_server } from "../tankon_server";
-import SocketPlayer from "./socket_player";
+import SocketPlayer, { PlayerLatency } from "./socket_player";
 
 export default class SocketRoom {
 
@@ -13,6 +13,16 @@ export default class SocketRoom {
 
     public id_get() {
         return this.room_id;
+    }
+
+    public players_update(): void {
+        const room_leaderboard = this.room_players.map(loop_player => ({
+            player_id:      loop_player.id_get(),
+            player_kills:   0,
+            player_deaths:  0,
+            player_latency: loop_player.latency_get()
+        }) as SocketRoomLeaderboard);
+        socket_server.to(this.room_id).emit("server_leaderboard", room_leaderboard);
     }
 
     public players_add(player_object: SocketPlayer): void {
@@ -36,4 +46,11 @@ export default class SocketRoom {
         return this.room_players;
     }
 
+}
+
+export interface SocketRoomLeaderboard {
+    player_id:      string,
+    player_kills:   number,
+    player_deaths:  number,
+    player_latency: PlayerLatency
 }

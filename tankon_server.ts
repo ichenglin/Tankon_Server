@@ -59,3 +59,8 @@ socket_server.on("connection", (socket_player) => {
         victim_players.forEach(loop_victim => loop_victim?.player_teleport(new Vector2D(0, 0, 0, 0)));
     });
 });
+
+setInterval(async () => {
+    await Promise.all(player_manager.player_all().map(loop_player => loop_player.player_ping(5000)));
+    room_manager.room_all().forEach(loop_room => loop_room.players_update());
+}, 10000);

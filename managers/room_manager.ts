@@ -40,4 +40,8 @@ export default class RoomManager {
         this.socket_rooms.delete(room_id);
     }
 
+    public room_all(): SocketRoom[] {
+        return Array.from(this.socket_rooms.values());
+    }
+
 }

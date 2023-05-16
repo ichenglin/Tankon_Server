@@ -19,4 +19,8 @@ export default class PlayerManager {
         return this.socket_players.get(player_id);
     }
 
+    public player_all(): SocketPlayer[] {
+        return Array.from(this.socket_players.values());
+    }
+
 }
