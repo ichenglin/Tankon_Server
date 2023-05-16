@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { room_manager } from "../tankon_server";
+import { room_manager, socket_server } from "../tankon_server";
 import SocketRoom from "./socket_room";
 import Vector2D from "./vector_2d";
 
@@ -26,6 +26,12 @@ export default class SocketPlayer {
     
     public player_teleport(player_coordinates: Vector2D): void {
         this.player_socket.emit("player_teleport", player_coordinates);
+        this.player_socket.broadcast.to(this.player_room?.id_get() as string).emit("player_move", this.player_id, {
+            movement_origin:    player_coordinates,
+            movement_proceed:   false,
+            movement_lifespan:  null,
+            movement_timestamp: Date.now()
+        } as PlayerMovement);
     }
 
     public id_get(): string {
