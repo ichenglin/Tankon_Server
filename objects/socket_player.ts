@@ -24,6 +24,10 @@ export default class SocketPlayer {
         this.player_socket   = player_socket;
     }
     
+    public player_teleport(player_coordinates: Vector2D): void {
+        this.player_socket.emit("player_teleport", player_coordinates);
+    }
+
     public id_get(): string {
         return this.player_id;
     }

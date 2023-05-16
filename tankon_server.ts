@@ -4,6 +4,7 @@ import Logger from "./managers/logger";
 import PlayerManager from "./managers/player_manager";
 import RoomManager from "./managers/room_manager";
 import SocketPlayer, { PlayerMovement } from "./objects/socket_player";
+import Vector2D from "./objects/vector_2d";
 
 dotenv.config();
 
@@ -51,5 +52,10 @@ socket_server.on("connection", (socket_player) => {
         if (player_data === null) return;
         // pass down the coordinates to the rest of the players
         socket_player.to(player_data.room_get()?.id_get() as string).emit("player_projectile", player_projectile);
+    });
+    socket_player.on("player_kill", (victim_ids: string[]) => {
+        if (player_data === null) return;
+        const victim_players = victim_ids.map(loop_victim_id => player_manager.player_get(loop_victim_id));
+        victim_players.forEach(loop_victim => loop_victim?.player_teleport(new Vector2D(0, 0, 0, 0)));
     });
 });
