@@ -5,6 +5,7 @@ import PlayerManager from "./managers/player_manager";
 import RoomManager from "./managers/room_manager";
 import SocketPlayer, { PlayerMovement } from "./objects/socket_player";
 import Vector2D from "./objects/vector_2d";
+import SocketRoom from "./objects/socket_room";
 
 dotenv.config();
 
@@ -33,12 +34,18 @@ socket_server.on("connection", (socket_player) => {
         if (typeof player_room     !== "string" && player_room !== null) callback_status({success: false});
         // check room exist and assign room
         if (player_room !== null && room_manager.room_get(player_room) === undefined) callback_status({success: false});
-        const player_room_validated = (player_room !== null) ? player_room : room_manager.room_queue().id_get();
+        const room_validated = (player_room !== null) ? room_manager.room_get(player_room) as SocketRoom : room_manager.room_queue();
         // join the room
-        Logger.log_send(`Room join: ${socket_player.id} joined ${player_room_validated}`);
+        Logger.log_send(`Room join: ${socket_player.id} joined ${room_validated.id_get()}`);
         player_data = player_manager.player_add(socket_player.id, player_username, socket_player);
-        player_data.room_set(player_room_validated);
-        callback_status({success: true, player_room: player_room_validated});
+        player_data.team_set(room_validated.team_available());
+        // room must be set at last, or else incomplete data is sent to the server clients
+        player_data.room_set(room_validated.id_get());
+        callback_status({
+            success:     true,
+            player_room: room_validated.id_get(),
+            player_data: player_data.data_get()
+        });
     });
     socket_player.on("player_move", (movement_data: PlayerMovement) => {
         if (player_data === null) return;

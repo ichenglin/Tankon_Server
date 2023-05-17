@@ -7,6 +7,7 @@ export default class SocketPlayer {
 
     private player_id:       string; // socket id
     private player_username: string;
+    private player_team:     PlayerTeam;
     private player_movement: PlayerMovement;
     private player_latency:  PlayerLatency;
     private player_room:     SocketRoom | undefined;
@@ -15,6 +16,7 @@ export default class SocketPlayer {
     constructor(player_id: string, player_username: string, player_socket: Socket) {
         this.player_id       = player_id;
         this.player_username = player_username;
+        this.player_team     = PlayerTeam.TEAM_LOBBY;
         this.player_movement = {
             movement_origin:    new Vector2D(0, 0, 0, 0),
             movement_proceed:   false,
@@ -71,6 +73,14 @@ export default class SocketPlayer {
         return this.player_username;
     }
 
+    public team_set(player_team: PlayerTeam): void {
+        this.player_team = player_team;
+    }
+
+    public team_get(): PlayerTeam {
+        return this.player_team;
+    }
+
     public movement_set(movement_new: PlayerMovement): void {
         this.player_movement = movement_new;
     }
@@ -100,13 +110,26 @@ export default class SocketPlayer {
         return this.player_socket;
     }
 
-    public profile_get(): PlayerProfile {
+    public data_get(): PlayerData {
         return {
             player_id:       this.player_id,
-            player_username: this.player_username
-        }
+            player_username: this.player_username,
+            player_team:     this.player_team,
+            player_kills:    0,
+            player_deaths:   0,
+            player_latency:  this.player_latency
+        };
     }
 
+}
+
+export interface PlayerData {
+    player_id:       string,
+    player_username: string,
+    player_team:     PlayerTeam,
+    player_kills:    number,
+    player_deaths:   number,
+    player_latency:  PlayerLatency
 }
 
 export interface PlayerProfile {
@@ -124,4 +147,10 @@ export interface PlayerMovement {
 export interface PlayerLatency {
     client_send:    number, // client to server
     client_receive: number  // server to client
+}
+
+export enum PlayerTeam {
+    TEAM_RED,
+    TEAM_BLUE,
+    TEAM_LOBBY
 }
