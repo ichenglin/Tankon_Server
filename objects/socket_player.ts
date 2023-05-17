@@ -9,6 +9,7 @@ export default class SocketPlayer {
     private player_username: string;
     private player_team:     PlayerTeam;
     private player_shield:   PlayerShield;
+    private player_match:    PlayerMatch;
     private player_movement: PlayerMovement;
     private player_latency:  PlayerLatency;
     private player_room:     SocketRoom | undefined;
@@ -21,6 +22,10 @@ export default class SocketPlayer {
         this.player_shield   = {
             shield_timestamp: Date.now(),
             shield_lifespan:  0
+        };
+        this.player_match    = {
+            player_kills:  0,
+            player_deaths: 0
         };
         this.player_movement = {
             movement_origin:    new Vector2D(0, 0, 0, 0),
@@ -120,6 +125,14 @@ export default class SocketPlayer {
         return this.player_latency;
     }
 
+    public kill_add(): void {
+        this.player_match.player_kills++;
+    }
+
+    public death_add(): void {
+        this.player_match.player_deaths++;
+    }
+
     public room_set(room_id: string): void {
         this.player_room = room_manager.room_get(room_id);
         this.player_room?.players_add(this);
@@ -142,8 +155,7 @@ export default class SocketPlayer {
             player_id:       this.player_id,
             player_username: this.player_username,
             player_team:     this.player_team,
-            player_kills:    0,
-            player_deaths:   0,
+            player_match:    this.player_match,
             player_latency:  this.player_latency
         };
     }
@@ -154,14 +166,13 @@ export interface PlayerData {
     player_id:       string,
     player_username: string,
     player_team:     PlayerTeam,
-    player_kills:    number,
-    player_deaths:   number,
+    player_match:    PlayerMatch,
     player_latency:  PlayerLatency
 }
 
-export interface PlayerProfile {
-    player_id:       string,
-    player_username: string
+export interface PlayerMatch {
+    player_kills:  number,
+    player_deaths: number
 }
 
 export interface PlayerMovement {

@@ -72,7 +72,11 @@ socket_server.on("connection", (socket_player) => {
             if (shield_age < shield_object.shield_lifespan) return;
             loop_victim.player_invincible(3000);
             loop_victim.player_respawn();
+            // scoring
+            player_data?.kill_add();
+            loop_victim.death_add();
         });
+        player_data.room_get()?.players_update();
     });
 });
 
