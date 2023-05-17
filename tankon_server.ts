@@ -3,7 +3,7 @@ import * as dotenv from "dotenv";
 import Logger from "./managers/logger";
 import PlayerManager from "./managers/player_manager";
 import RoomManager from "./managers/room_manager";
-import SocketPlayer, { PlayerMovement } from "./objects/socket_player";
+import SocketPlayer, { PlayerMovement, PlayerTeam } from "./objects/socket_player";
 import Vector2D from "./objects/vector_2d";
 import SocketRoom from "./objects/socket_room";
 
@@ -46,6 +46,8 @@ socket_server.on("connection", (socket_player) => {
             player_room: room_validated.id_get(),
             player_data: player_data.data_get()
         });
+        // teleport player to spawnpoint
+        player_data.player_respawn();
     });
     socket_player.on("player_move", (movement_data: PlayerMovement) => {
         if (player_data === null) return;
@@ -63,7 +65,7 @@ socket_server.on("connection", (socket_player) => {
     socket_player.on("player_kill", (victim_ids: string[]) => {
         if (player_data === null) return;
         const victim_players = victim_ids.map(loop_victim_id => player_manager.player_get(loop_victim_id));
-        victim_players.forEach(loop_victim => loop_victim?.player_teleport(new Vector2D(0, 0, 0, 0)));
+        victim_players.forEach(loop_victim => loop_victim?.player_respawn());
     });
 });
 

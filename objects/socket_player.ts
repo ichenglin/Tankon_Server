@@ -41,6 +41,16 @@ export default class SocketPlayer {
         } as PlayerMovement);
     }
 
+    public player_respawn(): void {
+        const team_spawnpoints = [
+            {team_id: PlayerTeam.TEAM_RED,   team_spawnpoints: [new Vector2D(-2400, 0, 0, 0), new Vector2D(-2400, 250, 0, 0), new Vector2D(-2400, -250, 0, 0)]},
+            {team_id: PlayerTeam.TEAM_BLUE,  team_spawnpoints: [new Vector2D( 2400, 0, 0, 0), new Vector2D( 2400, 250, 0, 0), new Vector2D( 2400, -250, 0, 0)]},
+            {team_id: PlayerTeam.TEAM_LOBBY, team_spawnpoints: [new Vector2D(0, 0, 0, 0)]}
+        ];
+        const player_spawnpoints = team_spawnpoints.find(loop_spawnpoints => loop_spawnpoints.team_id === this.player_team)?.team_spawnpoints as Vector2D[];
+        this.player_teleport(player_spawnpoints[Math.floor(Math.random() * player_spawnpoints.length)]);
+    }
+
     public async player_ping(ping_timeout: number): Promise<PlayerLatency> {
         const timestamp_send    = Date.now();
         const timestamp_receive = await new Promise<number | null>((resolve) => {

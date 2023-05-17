@@ -1,5 +1,5 @@
 import { socket_server } from "../tankon_server";
-import SocketPlayer, { PlayerLatency, PlayerTeam } from "./socket_player";
+import SocketPlayer, { PlayerTeam } from "./socket_player";
 
 export default class SocketRoom {
 
