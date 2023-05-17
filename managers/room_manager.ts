@@ -10,6 +10,12 @@ export default class RoomManager {
     constructor(room_capacity: number) {
         this.socket_rooms  = new Map<string, SocketRoom>();
         this.room_capacity = room_capacity;
+        setInterval(() => this.room_all().forEach(loop_room => {
+            const room_scoreboard = loop_room.scoreboard_get();
+            const round_age       = Date.now() - room_scoreboard.round_birthday;
+            const round_lifetime  = room_scoreboard.round_lifespan - round_age;
+            if (round_lifetime <= 0) loop_room.round_restart();
+        }), 1000);
     }
 
     public room_queue(room_digits: number = 8): SocketRoom {

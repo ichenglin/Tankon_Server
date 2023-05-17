@@ -3,8 +3,7 @@ import * as dotenv from "dotenv";
 import Logger from "./managers/logger";
 import PlayerManager from "./managers/player_manager";
 import RoomManager from "./managers/room_manager";
-import SocketPlayer, { PlayerMovement, PlayerTeam } from "./objects/socket_player";
-import Vector2D from "./objects/vector_2d";
+import SocketPlayer, { PlayerMovement } from "./objects/socket_player";
 import SocketRoom from "./objects/socket_room";
 
 dotenv.config();
@@ -75,8 +74,10 @@ socket_server.on("connection", (socket_player) => {
             // scoring
             player_data?.kill_add();
             loop_victim.death_add();
+            player_data?.room_get()?.scoreboard_score(player_data.team_get(), 1);
         });
         player_data.room_get()?.players_update();
+        player_data?.room_get()?.scoreboard_update();
     });
 });
 
