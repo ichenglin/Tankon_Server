@@ -65,7 +65,14 @@ socket_server.on("connection", (socket_player) => {
     socket_player.on("player_kill", (victim_ids: string[]) => {
         if (player_data === null) return;
         const victim_players = victim_ids.map(loop_victim_id => player_manager.player_get(loop_victim_id));
-        victim_players.forEach(loop_victim => loop_victim?.player_respawn());
+        victim_players.forEach(loop_victim => {
+            if (loop_victim === undefined) return;
+            const shield_object = loop_victim.shield_get();
+            const shield_age    = Date.now() - shield_object.shield_timestamp;
+            if (shield_age < shield_object.shield_lifespan) return;
+            loop_victim.player_invincible(3000);
+            loop_victim.player_respawn();
+        });
     });
 });
 

@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { room_manager } from "../tankon_server";
+import { room_manager, socket_server } from "../tankon_server";
 import SocketRoom from "./socket_room";
 import Vector2D from "./vector_2d";
 
@@ -8,6 +8,7 @@ export default class SocketPlayer {
     private player_id:       string; // socket id
     private player_username: string;
     private player_team:     PlayerTeam;
+    private player_shield:   PlayerShield;
     private player_movement: PlayerMovement;
     private player_latency:  PlayerLatency;
     private player_room:     SocketRoom | undefined;
@@ -17,6 +18,10 @@ export default class SocketPlayer {
         this.player_id       = player_id;
         this.player_username = player_username;
         this.player_team     = PlayerTeam.TEAM_LOBBY;
+        this.player_shield   = {
+            shield_timestamp: Date.now(),
+            shield_lifespan:  0
+        };
         this.player_movement = {
             movement_origin:    new Vector2D(0, 0, 0, 0),
             movement_proceed:   false,
@@ -26,7 +31,7 @@ export default class SocketPlayer {
         this.player_latency = {
             client_send:    0,
             client_receive: 0
-        }
+        };
         this.player_room     = undefined;
         this.player_socket   = player_socket;
     }
@@ -49,6 +54,14 @@ export default class SocketPlayer {
         ];
         const player_spawnpoints = team_spawnpoints.find(loop_spawnpoints => loop_spawnpoints.team_id === this.player_team)?.team_spawnpoints as Vector2D[];
         this.player_teleport(player_spawnpoints[Math.floor(Math.random() * player_spawnpoints.length)]);
+    }
+
+    public player_invincible(shield_lifespan: number): void {
+        this.player_shield = {
+            shield_timestamp: Date.now(),
+            shield_lifespan:  shield_lifespan
+        };
+        socket_server.to(this.player_room?.id_get() as string).emit("player_shield", this.player_id, this.player_shield);
     }
 
     public async player_ping(ping_timeout: number): Promise<PlayerLatency> {
@@ -89,6 +102,10 @@ export default class SocketPlayer {
 
     public team_get(): PlayerTeam {
         return this.player_team;
+    }
+
+    public shield_get(): PlayerShield {
+        return this.player_shield
     }
 
     public movement_set(movement_new: PlayerMovement): void {
@@ -163,4 +180,9 @@ export enum PlayerTeam {
     TEAM_RED,
     TEAM_BLUE,
     TEAM_LOBBY
+}
+
+export interface PlayerShield {
+    shield_timestamp: number,
+    shield_lifespan:  number
 }
