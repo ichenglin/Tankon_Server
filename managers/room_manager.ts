@@ -1,5 +1,5 @@
 import { PlayerTeam } from "../objects/socket_player";
-import SocketRoom from "../objects/socket_room";
+import SocketRoom, { RoomStatus } from "../objects/socket_room";
 import Logger from "./logger";
 
 export default class RoomManager {
@@ -14,7 +14,10 @@ export default class RoomManager {
             const room_scoreboard = loop_room.scoreboard_get();
             const round_age       = Date.now() - room_scoreboard.round_birthday;
             const round_lifetime  = room_scoreboard.round_lifespan - round_age;
-            if (round_lifetime <= 0) loop_room.round_restart();
+            if (round_lifetime > 0) return;
+            const round_status    = loop_room.scoreboard_get().round_status;
+            if      (round_status === RoomStatus.INTERMISSION)    loop_room.round_update(RoomStatus.TEAM_DEATHMATCH, (5 * (60E3)));
+            else if (round_status === RoomStatus.TEAM_DEATHMATCH) loop_room.round_update(RoomStatus.INTERMISSION,    (10E3));
         }), 1000);
     }
 

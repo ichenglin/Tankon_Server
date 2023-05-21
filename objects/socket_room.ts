@@ -19,12 +19,12 @@ export default class SocketRoom {
         this.room_players    = [];
     }
 
-    public round_restart(): void {
+    public round_update(round_status: RoomStatus, round_lifespan: number): void {
         this.room_scoreboard = {
             score_red:      0,
             score_blue:     0,
-            round_status:   RoomStatus.TEAM_DEATHMATCH,
-            round_lifespan: 5 * (60E3),
+            round_status:   round_status,
+            round_lifespan: round_lifespan,
             round_birthday: Date.now()
         };
         // rebalance teams
@@ -32,7 +32,7 @@ export default class SocketRoom {
         // update round to users
         this.players_update();
         this.scoreboard_update();
-        this.room_players.forEach(loop_player => loop_player.player_respawn());
+        if (round_status === RoomStatus.TEAM_DEATHMATCH) this.room_players.forEach(loop_player => loop_player.player_respawn());
     }
 
     public id_get() {
