@@ -16,7 +16,7 @@ export default class RoomManager {
             const round_lifetime  = room_scoreboard.round_lifespan - round_age;
             if (round_lifetime > 0) return;
             const round_status    = loop_room.scoreboard_get().round_status;
-            if      (round_status === RoomStatus.INTERMISSION)    loop_room.round_update(RoomStatus.TEAM_DEATHMATCH, (5 * (60E3)));
+            if      (round_status === RoomStatus.INTERMISSION)    loop_room.round_update(RoomStatus.TEAM_DEATHMATCH, (5 * (60E3)), true);
             else if (round_status === RoomStatus.TEAM_DEATHMATCH) loop_room.round_update(RoomStatus.INTERMISSION,    (10E3));
         }), 1000);
     }

@@ -19,10 +19,10 @@ export default class SocketRoom {
         this.room_players    = [];
     }
 
-    public round_update(round_status: RoomStatus, round_lifespan: number): void {
+    public round_update(round_status: RoomStatus, round_lifespan: number, round_score_reset: boolean = false): void {
         this.room_scoreboard = {
-            score_red:      0,
-            score_blue:     0,
+            score_red:      (!round_score_reset ? this.room_scoreboard.score_red  : 0),
+            score_blue:     (!round_score_reset ? this.room_scoreboard.score_blue : 0),
             round_status:   round_status,
             round_lifespan: round_lifespan,
             round_birthday: Date.now()
