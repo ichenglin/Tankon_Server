@@ -4,7 +4,7 @@ import Logger from "./managers/logger";
 import PlayerManager from "./managers/player_manager";
 import RoomManager from "./managers/room_manager";
 import SocketPlayer, { PlayerMovement } from "./objects/socket_player";
-import SocketRoom from "./objects/socket_room";
+import SocketRoom, { RoomStatus } from "./objects/socket_room";
 
 dotenv.config();
 
@@ -63,6 +63,7 @@ socket_server.on("connection", (socket_player) => {
     });
     socket_player.on("player_hit", (victim_ids: string[]) => {
         if (player_data === null) return;
+        if (player_data.room_get()?.scoreboard_get().round_status === RoomStatus.INTERMISSION) return;
         const victim_players = victim_ids.map(loop_victim_id => player_manager.player_get(loop_victim_id));
         victim_players.forEach(loop_victim => {
             if (loop_victim === undefined) return;
