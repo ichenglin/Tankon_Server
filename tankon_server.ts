@@ -69,7 +69,7 @@ socket_server.on("connection", (socket_player) => {
             const shield_object = loop_victim.shield_get();
             const shield_age    = Date.now() - shield_object.shield_timestamp;
             if (shield_age < shield_object.shield_lifespan) return;
-            loop_victim.player_invincible(3000);
+            loop_victim.player_invincible(10000);
             loop_victim.player_respawn();
             // scoring
             player_data?.kill_add();
@@ -78,6 +78,7 @@ socket_server.on("connection", (socket_player) => {
         });
         player_data.room_get()?.players_update();
         player_data?.room_get()?.scoreboard_update();
+        socket_server.to(player_data.room_get()?.id_get() as string).emit("player_kill", player_data.id_get(), victim_ids);
     });
 });
 
